@@ -1,0 +1,65 @@
+#!/bin/bash
+#
+# Determines which of black or white has the highest contrast with the specified
+# color.
+#
+# USAGE
+#
+#     legible_color RRGGBB
+#
+# Resources:
+# - https://contrastchecker.online/color-relative-luminance-calculator
+# - https://contrast-ratio.com
+
+
+# https://www.w3.org/TR/WCAG20/#relativeluminancedef
+relative_luminance() {
+    local color="$1"
+    local r=$((0x"${color:0:2}"))
+    local g=$((0x"${color:2:2}"))
+    local b=$((0x"${color:4:2}"))
+
+    awk -v r="$r" -v g="$g" -v b="$b" '
+        function lum(color) {
+            if (color <= 0.03928) {
+                return color / 12.92
+            }
+            return ((color + 0.055) / 1.055) ^ 2.4
+        }
+
+        BEGIN {
+            r /= 255; g /= 255; b /= 255
+            print 0.2126 * lum(r) + 0.7152 * lum(g) + 0.0722 * lum(b)
+        }
+    '
+}
+
+# https://www.w3.org/TR/WCAG20/#contrast-ratiodef
+contrast_ratio() {
+    local lum1="$(relative_luminance "$1")"
+    local lum2="$(relative_luminance "$2")"
+
+    awk -v lum1="$lum1" -v lum2="$lum2" '
+        BEGIN {
+            if (lum1 < lum2) { tmp = lum1; lum1 = lum2; lum2 = tmp }
+            print (lum1 + 0.05) / (lum2 + 0.05)
+        }
+    '
+}
+
+highest_contrast() {
+    local ref="$1"
+    local col1="$2"
+    local col2="$3"
+
+    local ratio1="$(contrast_ratio "$ref" "$col1")"
+    local ratio2="$(contrast_ratio "$ref" "$col2")"
+
+    if awk -v l="$ratio1" -v r="$ratio2" 'BEGIN { exit !(l > r) }'; then
+        echo "$col1"
+    else
+        echo "$col2"
+    fi
+}
+
+highest_contrast "$1" 000000 ffffff

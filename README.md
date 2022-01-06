@@ -23,3 +23,12 @@ Add the following line to your `.tmux.conf`:
     run-shell ~/clone/path/colorize.tmux
 
 Reload the tmux environment with `tmux source-file ~/.tmux.conf`.
+
+# Configuration
+
+The string used to generate the color can be configured with `@status_color_source`.
+The default is equivalent to:
+
+```tmux.conf
+set -gF @status_color_source '#{host}'
+```

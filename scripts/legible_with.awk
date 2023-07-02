@@ -36,7 +36,7 @@ function relative_luminance(col,    r, g, b) {
 }
 
 # https://www.w3.org/TR/WCAG20/#contrast-ratiodef
-function contrast_ratio(col1, col2,    lum1, lum2) {
+function contrast_ratio(col1, col2,    lum1, lum2, tmp) {
     lum1 = relative_luminance(col1)
     lum2 = relative_luminance(col2)
 

@@ -9,15 +9,11 @@
 # - https://contrastchecker.online/color-relative-luminance-calculator
 # - https://contrast-ratio.com
 
-function parsehex(hex,    conv, n, out) {
-    for (n = 0; n < 16; n++)
-        conv[sprintf("%x", n)] = n
+function parsehex(hex,    i, dec) {
+    for (i = 1; i <= length(hex); i++)
+        dec = dec * 16 + index("123456789abcdef", substr(hex, i, 1))
 
-    out = 0
-    for (n = 1; n <= length(hex); n++)
-        out = out * 16 + conv[substr(hex, n, 1)]
-
-    return out
+    return dec
 }
 
 # Luminance of single color channel
